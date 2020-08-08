@@ -1,1 +1,3 @@
 nodemon --signal SIGKILL server.js
+
+https://bezkoder.com/node-express-mongodb-crud-rest-api/
