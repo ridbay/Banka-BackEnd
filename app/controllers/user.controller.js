@@ -10,29 +10,31 @@ exports.signup = (req, res) => {
       message: "Those fields can not be empty",
     });
   }
-
-  // Create a User
-  const user = new User({
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    email: req.body.email,
-    password: req.body.password,
-  });
-
-  // Save User in the database
-  user
-    .save()
-    .then((data) => {
-      res.status(201).json({
-        message: "User successfully created!",
-        data: data,
-      });
-    })
-    .catch((err) => {
-      res.status(500).json({
-        message: err.message || "Some error occurred while creating the User.",
-      });
+  bcrypt.hash(req.body.password, 10).then((hash) => {
+    // Create a User
+    const user = new User({
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+      password: hash,
     });
+
+    // Save User in the database
+    user
+      .save()
+      .then((data) => {
+        res.status(201).json({
+          message: "User successfully created!",
+          // data: data,
+        });
+      })
+      .catch((err) => {
+        res.status(500).json({
+          message:
+            err.message || "Some error occurred while creating the User.",
+        });
+      });
+  });
 };
 
 // Sign in an existing User
@@ -101,29 +103,30 @@ exports.findAllUsers = (req, res) => {
     });
 };
 
-
 //Get a user profile
 exports.getOneUser = (req, res, next) => {
-  User.findById(req.params.id).then((user) => {
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found with id " + req.params.noteId,
-      });
-    }
-    return res.json({
-      message: "User found!",
-      data: user,
-    });
-  }).catch(error=>{
-    if(err.kind === 'ObjectId') {
+  User.findById(req.params.id)
+    .then((user) => {
+      if (!user) {
         return res.status(404).json({
-            message: "User not found with id " + req.params.noteId
-        });                
-    }
-    return res.status(500).json({
-        message: "Error retrieving user with id " + req.params.noteId
-    }); 
-  })
+          message: "User not found with id " + req.params.noteId,
+        });
+      }
+      return res.json({
+        message: "User found!",
+        data: user,
+      });
+    })
+    .catch((error) => {
+      if (err.kind === "ObjectId") {
+        return res.status(404).json({
+          message: "User not found with id " + req.params.noteId,
+        });
+      }
+      return res.status(500).json({
+        message: "Error retrieving user with id " + req.params.noteId,
+      });
+    });
 };
 
 // Update a note identified by the noteId in the request
@@ -152,7 +155,7 @@ exports.updateUser = (req, res) => {
       }
       res.json({
         message: "User profile updated successfully",
-        data: user
+        data: user,
       });
     })
     .catch((err) => {

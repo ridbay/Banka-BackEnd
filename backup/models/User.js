@@ -1,7 +1,6 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const uniqueValidator = require('mongoose-unique-validator');
-
+const uniqueValidator = require("mongoose-unique-validator");
 
 // const userSchema = new Schema({
 //     firstName: String,
@@ -10,22 +9,26 @@ const uniqueValidator = require('mongoose-unique-validator');
 //     password: String,
 //     permissionLevel: Number
 //  });
-let userSchema = new Schema({
+let userSchema = new Schema(
+  {
     firstName: {
-        type: String
+      type: String,
     },
     lastName: {
-        type: String
+      type: String,
     },
-    email:{
-        type:String,
-        unique: true
+    email: {
+      type: String,
+      unique: true,
     },
-    password:{
-        type: String
-    }
-}, {collection: 'users'});
+    password: {
+      type: String,
+      required: true,
+    },
+  },
+  { collection: "users" }
+);
 
-userSchema.plugin(uniqueValidator, {message: 'Email already in use.'});
+userSchema.plugin(uniqueValidator, { message: "Email already in use." });
 
 module.exports = mongoose.model("User", userSchema);
