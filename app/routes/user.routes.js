@@ -3,10 +3,10 @@ const user = require("../controllers/user.controller");
 
 module.exports = (app) => {
   //Create a new user
-  app.post("/signup", user.signup);
+  app.post("/auth/signup", user.signup);
 
   //Signin an existing user
-  app.post("/signin", user.signin);
+  app.post("/auth/signin", user.signin);
 
   //   //Create a bank account
   //   app.post("/accounts", authorize, user.accounts);

@@ -1,3 +1,6 @@
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+
 // {
 //     “id” : Integer,
 //     “createdOn” : DateTime,
@@ -9,3 +12,21 @@
 //     “newBalance” : Float,
 //     ...
 //     }
+
+
+
+const transactionSchema = new Schema({
+    type: String,
+    accountNumber: String,
+    cashier: Number,
+    amount: Number,
+    oldBalance: Number,
+    newBalance: Number,
+    user: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      }],
+  })
+
+
+module.exports = mongoose.model("Transaction", transactionSchema, 'transactions');

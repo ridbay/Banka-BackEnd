@@ -1,6 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-// const noteRoutes = require('./app/routes/note.routes.js')
+
 // Configuring the database
 const dbConfig = require("./config/database.config.js");
 const mongoose = require("mongoose");
@@ -37,14 +37,17 @@ mongoose.set("useCreateIndex", true);
 // define a simple route
 app.get("/", (req, res) => {
   res.json({
-    message: "Welcome to Banka App.",
+    "message": "Welcome to Banka App.",
   });
 });
 
-//Require Notes routes
-require("./app/routes/note.routes")(app);
+//Require Accounts routes
+let accountRoutes = require("./app/routes/account.routes");
+accountRoutes(app);
 //Require Users routes
-require("./app/routes/user.routes")(app);
+let userRoutes = require("./app/routes/user.routes")
+
+userRoutes(app);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8000;

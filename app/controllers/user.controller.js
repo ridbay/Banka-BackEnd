@@ -17,6 +17,8 @@ exports.signup = (req, res) => {
       lastName: req.body.lastName,
       email: req.body.email,
       password: hash,
+      type: "client", // client or staff
+      isAdmin: false
     });
 
     // Save User in the database
@@ -25,7 +27,7 @@ exports.signup = (req, res) => {
       .then((data) => {
         res.status(201).json({
           message: "User successfully created!",
-          // data: data,
+          data: data,
         });
       })
       .catch((err) => {
