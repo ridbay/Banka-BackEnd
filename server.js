@@ -44,9 +44,9 @@ app.get("/", (req, res) => {
 //Require Accounts routes
 let accountRoutes = require("./app/routes/account.routes");
 accountRoutes(app);
+
 //Require Users routes
 let userRoutes = require("./app/routes/user.routes")
-
 userRoutes(app);
 
 // set port, listen for requests
