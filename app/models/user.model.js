@@ -10,8 +10,8 @@ const userSchema = new Schema(
       type: String,
       unique: true,
     },
-    password: String,
-    type: String,
+    password: {type: String, lowercase: true,},
+    type: String, // client or staff
     isAdmin: Boolean,
     accounts: [
       {
@@ -27,4 +27,12 @@ const userSchema = new Schema(
 
 userSchema.plugin(uniqueValidator, { message: "Email already in use." });
 
+
+//To use this app with a front-end that needs id field instead of _id, override toJSON method that map default object to a custom object.
+
+userSchema.method("toJSON", function () {
+  const { __v, _id, ...object } = this.toObject();
+  object.id = _id;
+  return object;
+});
 module.exports = mongoose.model("User", userSchema, "users");

@@ -1,9 +1,10 @@
 const jwt = require("jsonwebtoken");
+let secretWord = require("../config/index")
 
 module.exports = (req, res, next) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
-    jwt.verify(token, "longer-secret-is-better");
+    jwt.verify(token, secretWord.secret);
     next();
   } catch (error) {
     res.status(401).json({ message: "Authentication failed, requires authorization" });

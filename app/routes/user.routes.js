@@ -8,6 +8,12 @@ module.exports = (app) => {
   //Signin an existing user
   app.post("/auth/signin", user.signin);
 
+  //Get all users
+  app.get("/auth/users", user.findAllUsers);
+
+  // Create a new Tutorial
+  app.delete("/deleteAll", user.deleteAll);
+
   //   //Create a bank account
   //   app.post("/accounts", authorize, user.accounts);
 
