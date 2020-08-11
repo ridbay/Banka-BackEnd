@@ -4,109 +4,120 @@ const bcrypt = require("bcryptjs");
 let secretWord = require("../config/index");
 
 // Sign up and Save a new User
-exports.signup = (req, res) => {
-  // Validate request
-  if (!req.body.firstName && !req.body.lastName && !req.body.email) {
-    return res.status(400).json({
-      message: "Those fields can not be empty",
-    });
-  }
 
-  bcrypt.hash(req.body.password, 10).then((hash) => {
-    // Create a User
-    const user = new User({
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      email: req.body.email,
-      password: hash,
+exports.signup = async (req, res) => {
+  const { firstName, lastName, email, password } = req.body;
+  try {
+    let user = await User.findOne({
+      email,
+    });
+    if (user) {
+      return res.status(400).json({
+        data: "User Already Exists",
+      });
+    }
+    user = new User({
+      firstName,
+      lastName,
+      email,
+      password,
       type: "client", // client or staff
       isAdmin: false,
     });
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt);
 
-    // Save User in the database
-    user
-      .save()
-      .then((user) => {
-        res.status(201).json({
-          message: "User successfully created!",
-          data: user,
+    const savedUser = await user.save();
+    res.status(201).json({
+      message: "User successfully created!",
+      result: savedUser,
+    });
+    const payload = {
+      user: {
+        id: user.id,
+      },
+    };
+    jwt.sign(
+      payload,
+      secretWord.secret,
+      {
+        expiresIn: 10000,
+      },
+      (err, token) => {
+        if (err) throw err;
+        res.status(200).json({
+          token,
         });
-      })
-      .catch((err) => {
-        res.status(500).json({
-          message:
-            err.message || "Some error occurred while creating the User.",
-        });
-      });
-  });
+      }
+    );
+  } catch (err) {
+    res.status(500).json({ message: "Error in Saving", data: err });
+  }
 };
 
 // Sign in an existing User
-exports.signin = (req, res) => {
+exports.signin = async (req, res) => {
   // Validate request
   if (!req.body.email && !req.body.password) {
     return res.status(400).json({
       message: "Those fields can not be empty",
     });
   }
-  let getUser;
-  // find User in the database
-  User.findOne({
-    email: req.body.email,
-  })
-    .then((user) => {
-      if (!user) {
-        return res.status(401).json({
-          message: "Authentication failed, No user with that email",
-        });
-      }
-      getUser = user;
-      return bcrypt.compare(req.body.password, getUser.password);
-    })
-    .then((response) => {
-      // if (!response) {
-      //   return res.status(401).json({
-      //     message: "Password doesn't match",
-      //   });
-      // }
 
-      if (response) {
-        console.log("authentication successful");
-        let jwtToken = jwt.sign(
-          {
-            email: getUser.email,
-            userId: getUser.id,
-          },
-          secretWord.secret,
-          { expiresIn: "1h" }
-        );
-
-        res.status(200).json({
-          token: jwtToken,
-          expiresIn: 3600,
-          data: getUser,
-          message: "authentication successful",
-        });
-      } else {
-        console.log("authentication failed. Password doesn't match");
-        return res.status(401).json({
-          message: "authentication failed. Password doesn't match",
-        });
-      }
-    })
-    .catch((error) => {
-      return res.status(401).json({
-        message: "Authentication failed",
-        data: error,
-      });
+  const { email, password } = req.body;
+  try {
+    let user = await User.findOne({
+      email,
     });
-};
+    if (!user)
+      return res.status(400).json({
+        message: "User Not Exist",
+      });
 
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch)
+      return res.status(400).json({
+        message: "Incorrect Password !",
+      });
+
+    const payload = {
+      user: {
+        id: user.id,
+      },
+    };
+
+    let jwtToken = jwt.sign(
+      payload,
+      secretWord.secret,
+      {
+        expiresIn: 3600,
+      },
+      (err, token) => {
+        if (err) throw err;
+        res.status(200).json({
+          token,
+        });
+      }
+    );
+
+    return res.status(200).json({
+      token: jwtToken,
+      expiresIn: 3600,
+      data: user,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({
+      message: "Server Error",
+      data: e,
+    });
+  }
+};
 // Retrieve and return all users from the database.
 exports.findAllUsers = (req, res) => {
   User.find()
     .then((users) => {
-      console.log(users);
       res.json({
         message: "Users successfully found!",
         data: users,

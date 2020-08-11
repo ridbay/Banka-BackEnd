@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 
+
 // Configuring the database
 const dbConfig = require("./config/database.config.js");
 const mongoose = require("mongoose");
@@ -13,6 +14,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // parse requests of content-type - application/json
 app.use(bodyParser.json());
+
+//To validate inputs
+// app.use(expressValidator())
 
 mongoose.Promise = global.Promise;
 

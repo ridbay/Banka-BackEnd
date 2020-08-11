@@ -12,7 +12,7 @@ module.exports = (app) => {
   app.get("/auth/users", user.findAllUsers);
 
   // Create a new Tutorial
-  app.delete("/deleteAll", user.deleteAll);
+  app.delete("/auth/deleteAll", user.deleteAll);
 
   //   //Create a bank account
   //   app.post("/accounts", authorize, user.accounts);
