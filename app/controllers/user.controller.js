@@ -87,20 +87,11 @@ exports.signin = async (req, res) => {
       },
     };
 
-    let jwtToken = jwt.sign(
-      payload,
-      secretWord.secret,
-      {
-        expiresIn: 3600,
-      },
-      (err, token) => {
-        if (err) throw err;
-        res.status(200).json({
-          token,
-        });
-      }
-    );
-
+    let jwtToken = jwt.sign({
+      email: user.email,
+      userId: user._id
+    },secretWord.secret,{expiresIn: 3600})
+    
     return res.status(200).json({
       token: jwtToken,
       expiresIn: 3600,

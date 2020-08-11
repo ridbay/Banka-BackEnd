@@ -1,7 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 
-
 // Configuring the database
 const dbConfig = require("./config/database.config.js");
 const mongoose = require("mongoose");
@@ -14,9 +13,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // parse requests of content-type - application/json
 app.use(bodyParser.json());
-
-//To validate inputs
-// app.use(expressValidator())
 
 mongoose.Promise = global.Promise;
 
@@ -41,7 +37,7 @@ mongoose.set("useCreateIndex", true);
 // define a simple route
 app.get("/", (req, res) => {
   res.json({
-    "message": "Welcome to Banka App.",
+    message: "Welcome to Banka App.",
   });
 });
 
@@ -50,7 +46,7 @@ let accountRoutes = require("./app/routes/account.routes");
 accountRoutes(app);
 
 //Require Users routes
-let userRoutes = require("./app/routes/user.routes")
+let userRoutes = require("./app/routes/user.routes");
 userRoutes(app);
 
 // set port, listen for requests
