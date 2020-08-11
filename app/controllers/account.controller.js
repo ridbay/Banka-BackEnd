@@ -2,6 +2,11 @@ const Account = require("../models/account.model");
 const User = require("../models/user.model");
 // Create and Save a new Account
 exports.create = async (req, res) => {
+  if(!req.body.email){
+    return res.json({
+      message: "Please provide an email"
+    })
+  }
   try {
     // Create a Account
     const account = new Account({
@@ -16,13 +21,13 @@ exports.create = async (req, res) => {
 
     // Save Account in the database
     const savedAccount = await account.save();
-    console.log(savedAccount);
     // Adds account to User
     // Then saves User to database
     const user = await User.findOne({ email: req.body.email });
+    console.log(user)
     user.accounts.push(savedAccount.id);
     const savedUser = await user.save();
-    console.log(savedUser);
+
     res.json({ message: "Bank account created", data: savedUser });
   } catch (err) {
     res.status(500).json({
@@ -53,7 +58,7 @@ exports.findAll = async (req, res) => {
     const user = await User.findOne({ email: req.body.email });
     const accounts = await Account.find();
     // const accounts = await user.populate("accounts").exec();
-    console.log(accounts);
+   
     return res.json({
       data: accounts,
     });
