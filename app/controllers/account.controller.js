@@ -10,6 +10,7 @@ exports.create = async (req, res) => {
   try {
     // Create a Account
     const account = new Account({
+      email:req.body.email,
       accountNumber: Math.floor(
         Math.random() * (9999999999 - 1111111111) + 1111111111
       ),
@@ -55,10 +56,12 @@ exports.create = async (req, res) => {
 // Retrieve and return all accounts from the database.
 exports.findAll = async (req, res) => {
   try {
+
+ 
     const user = await User.findOne({ email: req.body.email });
     const accounts = await Account.find();
-    // const accounts = await user.populate("accounts").exec();
-   
+    const accounts2 = await accounts.populate("accounts").exec();
+   console.log(accounts2)
     return res.json({
       data: accounts,
     });
@@ -88,34 +91,40 @@ exports.findAll = async (req, res) => {
 
 // Find a single account with a accountNumber
 exports.findOne = async (req, res) => {
-  // function getUserWithPosts(username){
-  //   return User.findOne({ username: username })
-  //     .populate('posts').exec((err, posts) => {
-  //       console.log("Populated User " + posts);
-  //     })
-  // }
+  
+  
 
 
   try {
-    const user = await User.findOne({ email: req.body.email });
-    const account = await Account.find({ id: user.id });
-    return res.json({
-      message: "Account Found",
-      data: account,
-    });
-    // Account.findOne({accountNumber:req.params.accountNumber})
 
-    //   .then((account) => {
-    //     if (!account) {
-    //       return res.status(404).json({
-    //         message: "Account not found with id " + req.params.accountNumber,
-    //       });
-    //     }
-    //     res.json({
+    Account.findOne({ email: req.body.email })
+      .populate("user")
+      .exec((err, user) => {
+        console.log("Populated Account " + user);
+        return res.json({
+          message: "Account Found",
+          data: user,
+        });
+      });
+  
+    // const user = await User.findOne({ email: req.body.email });
+    // console.log("user", user.email)
+    // const account = await Account.find({ email: user.email });
+    // console.log("account", account)
+    // return res.json({
+    //   message: "Account Found",
+    //   data: account,
+    // });
+    // Account
+    // .find({ accountNumber: req.params.accountNumber })
+    // .populate('user')
+    // .exec(function(err, account) {
+    //   if (err) return next(err);
+    //   return res.json({
     //       message: "Account Found",
     //       data: account,
     //     });
-    //   })
+    // });
   } catch (err) {
     if (err.kind === "ObjectId") {
       return res.status(404).json({
@@ -131,11 +140,11 @@ exports.findOne = async (req, res) => {
 // Activate or Deactivate an account identified by the accountNumber in the request
 exports.update = (req, res) => {
   // Validate Request
-  if (!req.body.accountNumber) {
-    return res.status(400).json({
-      message: "account Number can not be empty",
-    });
-  }
+  // if (!req.body.accountNumber) {
+  //   return res.status(400).json({
+  //     message: "account Number can not be empty",
+  //   });
+  // }
 
   // Find account and update it with the request body
   Account.findByIdAndUpdate(
@@ -143,6 +152,7 @@ exports.update = (req, res) => {
     {
       status: req.body.accountStatus || "active",
     },
+    
     { new: true }
   )
     .then((account) => {

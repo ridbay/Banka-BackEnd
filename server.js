@@ -1,5 +1,8 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const cors = require("cors");
+
+
 
 // Configuring the database
 const dbConfig = require("./config/database.config.js");
@@ -8,6 +11,7 @@ const mongoose = require("mongoose");
 // create express app
 const app = express();
 
+app.use(cors())
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -48,6 +52,7 @@ accountRoutes(app);
 //Require Users routes
 let userRoutes = require("./app/routes/user.routes");
 userRoutes(app);
+
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8000;

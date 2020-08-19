@@ -1,4 +1,5 @@
 const User = require("../models/user.model");
+const Account = require("../models/account.model");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 let secretWord = require("../config/index");
@@ -6,52 +7,80 @@ let secretWord = require("../config/index");
 // Sign up and Save a new User
 
 exports.signup = async (req, res) => {
-  const { firstName, lastName, email, password } = req.body;
-  try {
-    let user = await User.findOne({
-      email,
-    });
-    if (user) {
-      return res.status(400).json({
-        data: "User Already Exists",
-      });
-    }
-    user = new User({
-      firstName,
-      lastName,
-      email,
-      password,
-      type: "client", // client or staff
-      isAdmin: false,
-    });
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(password, salt);
+  let errors = [];
 
-    const savedUser = await user.save();
-    res.status(201).json({
-      message: "User successfully created!",
-      result: savedUser,
+  if (!req.body.firstName) {
+    errors.push({ message: "First Name is mandatory" });
+  }
+  if (!req.body.lastName) {
+    errors.push({ message: "Last Name is mandatory" });
+  }
+  if (!req.body.email) {
+    errors.push({ message: "Email is mandatory" });
+  }
+  if (!req.body.password) {
+    errors.push({ message: "Password is mandatory" });
+  }
+  if (errors.length > 0) {
+    res.json({
+      errors,
     });
-    const payload = {
-      user: {
-        id: user.id,
-      },
-    };
-    jwt.sign(
-      payload,
-      secretWord.secret,
-      {
-        expiresIn: 10000,
-      },
-      (err, token) => {
-        if (err) throw err;
-        res.status(200).json({
-          token,
+  } else {
+    const { firstName, lastName, email, password } = req.body;
+    try {
+      let user = await User.findOne({
+        email,
+      });
+      if (user) {
+        return res.status(400).json({
+          data: "User Already Exists",
         });
       }
-    );
-  } catch (err) {
-    res.status(500).json({ message: "Error in Saving", data: err });
+      user = new User({
+        firstName,
+        lastName,
+        email,
+        password,
+        type: "client", // client or staff
+        isAdmin: false,
+      });
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(password, salt);
+
+      const savedUser = await user.save();
+     
+      //Link account with new User created
+      const account = new Account({
+        user: user.id,
+      });
+      let savedAccount = await account.save();
+
+      res.status(201).json({
+        message: "User successfully created!",
+        data: savedUser,
+      });
+
+      const payload = {
+        user: {
+          id: user.id,
+        },
+      };
+      jwt.sign(
+        payload,
+        secretWord.secret,
+        {
+          expiresIn: 10000,
+        },
+        (err, token) => {
+          if (err) throw err;
+          res.status(200).json({
+            token,
+          });
+        }
+      );
+    } catch (err) {
+      res.status(500).json({ message: "Error in Saving", data: err });
+    }
   }
 };
 
@@ -87,11 +116,15 @@ exports.signin = async (req, res) => {
       },
     };
 
-    let jwtToken = jwt.sign({
-      email: user.email,
-      userId: user._id
-    },secretWord.secret,{expiresIn: 3600})
-    
+    let jwtToken = jwt.sign(
+      {
+        email: user.email,
+        userId: user._id,
+      },
+      secretWord.secret,
+      { expiresIn: 3600 }
+    );
+
     return res.status(200).json({
       token: jwtToken,
       expiresIn: 3600,
@@ -123,7 +156,7 @@ exports.findAllUsers = (req, res) => {
 
 //Get a user profile
 exports.getOneUser = (req, res, next) => {
-  return User.findById(req.params.id)
+  return User.findOne({ email: req.body.email })
     .populate("accounts")
     .exec((err, user) => {
       if (!user) {

@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon --signal SIGKILL server.js"
+    "dev": "supervisor server.js"
   },
   "keywords": [],
   "author": "",
