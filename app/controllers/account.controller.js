@@ -17,7 +17,7 @@ exports.create = async (req, res) => {
     });
   } else {
     try {
-//Find a user
+      //Find a user
       const user = await User.findOne({ email: req.body.email });
 
       // Create a Account
@@ -29,7 +29,7 @@ exports.create = async (req, res) => {
         type: req.body.type,
         status: "active",
         openingBalance: Number(req.body.openingBalance) || 0,
-        owner: user.id
+        owner: user.id,
       });
 
       // Save Account in the database
@@ -38,7 +38,11 @@ exports.create = async (req, res) => {
       // Then saves User to database
       user.accounts.push(savedAccount.id);
 
-      res.json({ message: "Bank account created", data: savedAccount, user: user });
+      res.json({
+        message: "Bank account created",
+        data: savedAccount,
+        user: user,
+      });
     } catch (err) {
       res.status(500).json({
         message:
@@ -52,12 +56,27 @@ exports.create = async (req, res) => {
 exports.findAll = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
-    const accounts = await Account.find();
-    const accounts2 = await accounts.populate("accounts").exec();
-    console.log(accounts2);
-    return res.json({
-      data: accounts,
-    });
+    if (!user) {
+      return res.status(200).json({
+        message: "User Not Found",
+      });
+    }
+    
+      const accounts = await Account.find({ owner: user.id });
+      // console.log("account", account);
+      return res.json({
+        message: "Account Found",
+        data: accounts,
+      });
+  
+
+    // const user = await User.findOne({ email: req.body.email });
+    // const accounts = await Account.find();
+    // const accounts2 = await accounts.populate("accounts").exec();
+    // console.log(accounts2);
+    // return res.json({
+    //   data: accounts,
+    // });
   } catch (error) {
     return res.status(500).json({
       message:
@@ -83,34 +102,13 @@ exports.findAll = async (req, res) => {
 // Find a single account with a accountNumber
 exports.findOne = async (req, res) => {
   try {
-    Account.findOne({ email: req.body.email })
-      .populate("user")
-      .exec((err, user) => {
-        console.log("Populated Account " + user);
-        return res.json({
-          message: "Account Found",
-          data: user,
-        });
-      });
-
-    // const user = await User.findOne({ email: req.body.email });
-    // console.log("user", user.email)
-    // const account = await Account.find({ email: user.email });
-    // console.log("account", account)
-    // return res.json({
-    //   message: "Account Found",
-    //   data: account,
-    // });
-    // Account
-    // .find({ accountNumber: req.params.accountNumber })
-    // .populate('user')
-    // .exec(function(err, account) {
-    //   if (err) return next(err);
-    //   return res.json({
-    //       message: "Account Found",
-    //       data: account,
-    //     });
-    // });
+    const account = await Account.find({
+      accountNumber: req.params.accountNumber,
+    }).populate("owner");
+    return res.json({
+      message: "Account Found",
+      data: account,
+    });
   } catch (err) {
     if (err.kind === "ObjectId") {
       return res.status(404).json({
@@ -125,16 +123,23 @@ exports.findOne = async (req, res) => {
 
 // Activate or Deactivate an account identified by the accountNumber in the request
 exports.update = (req, res) => {
-  // Validate Request
-  // if (!req.body.accountNumber) {
-  //   return res.status(400).json({
-  //     message: "account Number can not be empty",
-  //   });
-  // }
+  let errors = [];
+  if (!req.body.email) {
+    errors.push({ message: "Email is mandatory" });
+  }
+  if (!req.body.type) {
+    errors.push({ message: "type is mandatory" });
+  }
 
+  if (errors.length > 0) {
+    res.json({
+      errors,
+    });
+  } else {
+  }
   // Find account and update it with the request body
   Account.findByIdAndUpdate(
-    req.params.accountNumber,
+    req.params.id,
     {
       status: req.body.accountStatus || "active",
     },

@@ -9,13 +9,13 @@ module.exports = (app) => {
   app.post("/accounts", accounts.create);
 
   //Retrieve all accounts
-  app.get("/accounts", authorize, accounts.findAll);
+  app.get("/accounts", accounts.findAll);
 
   //Retrieve a single account with accountNumber
   app.get("/accounts/:accountNumber", accounts.findOne);
 
   //Update a account with accountNumber
-  app.put("/accounts/:accountNumber", accounts.update);
+  app.put("/accounts/:id", accounts.update);
 
   //Delete a account with accountNumber
 
