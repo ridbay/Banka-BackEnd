@@ -48,7 +48,7 @@ exports.signup = async (req, res) => {
       user.password = await bcrypt.hash(password, salt);
 
       const savedUser = await user.save();
-     
+
       //Link account with new User created
       const account = new Account({
         user: user.id,
@@ -87,55 +87,63 @@ exports.signup = async (req, res) => {
 // Sign in an existing User
 exports.signin = async (req, res) => {
   // Validate request
-  if (!req.body.email && !req.body.password) {
-    return res.status(400).json({
-      message: "Those fields can not be empty",
-    });
+  let errors = [];
+
+  if (!req.body.email) {
+    errors.push({ message: "Email is mandatory" });
   }
-
-  const { email, password } = req.body;
-  try {
-    let user = await User.findOne({
-      email,
+  if (!req.body.password) {
+    errors.push({ message: "Password is mandatory" });
+  }
+  if (errors.length > 0) {
+    res.status(400).json({
+      data: errors,
     });
-    if (!user)
-      return res.status(400).json({
-        message: "User Not Exist",
+  } else {
+    const { email, password } = req.body;
+    try {
+      let user = await User.findOne({
+        email,
       });
+      if (!user)
+        return res.status(400).json({
+          message: "User Not Exist",
+        });
 
-    const isMatch = await bcrypt.compare(password, user.password);
+      const isMatch = await bcrypt.compare(password, user.password);
 
-    if (!isMatch)
-      return res.status(400).json({
-        message: "Incorrect Password !",
+      if (!isMatch)
+        return res.status(400).json({
+          message: "Incorrect Password !",
+        });
+
+      const payload = {
+        user: {
+          id: user.id,
+        },
+      };
+
+      let jwtToken = jwt.sign(
+        {
+          email: user.email,
+          userId: user._id,
+        },
+        secretWord.secret,
+        { expiresIn: 3600 }
+      );
+
+      return res.status(200).json({
+        token: jwtToken,
+        expiresIn: 3600,
+        data: user,
       });
-
-    const payload = {
-      user: {
-        id: user.id,
-      },
-    };
-
-    let jwtToken = jwt.sign(
-      {
-        email: user.email,
-        userId: user._id,
-      },
-      secretWord.secret,
-      { expiresIn: 3600 }
-    );
-
-    return res.status(200).json({
-      token: jwtToken,
-      expiresIn: 3600,
-      data: user,
-    });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({
-      message: "Server Error",
-      data: e,
-    });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        message: "Server Error",
+        data: error,
+      });
+    }
   }
 };
 // Retrieve and return all users from the database.
