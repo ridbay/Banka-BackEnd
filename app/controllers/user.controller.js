@@ -50,10 +50,10 @@ exports.signup = async (req, res) => {
       const savedUser = await user.save();
 
       //Link account with new User created
-      const account = new Account({
-        user: user.id,
-      });
-      let savedAccount = await account.save();
+      // const account = new Account({
+      //   owner: user.id,
+      // });
+      // let savedAccount = await account.save();
 
       res.status(201).json({
         message: "User successfully created!",

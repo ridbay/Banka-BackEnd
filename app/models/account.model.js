@@ -3,21 +3,21 @@ const Schema = mongoose.Schema;
 
 const accountSchema = new Schema(
   {
-    owner: Number, // user
+    // owner: Number, // user
     type: String, // savings, current
     accountNumber: Number,
     status: String, // draft, active, or dormant
-    cashier: Number,
-    amount: Number,
-    oldBalance: { type: Number, default: 0 },
-    newBalance: { type: Number, default: 0 },
+    // cashier: Number,
+    // amount: Number,
+    // oldBalance: { type: Number, default: 0 },
+    openingBalance: { type: Number, default: 0 },
     transactions: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Transaction",
       },
     ],
-    user: {
+    owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },

@@ -1,20 +1,23 @@
-const accounts = require('../controllers/account.controller.js');
-  const authorize = require("../middlewares/auth"); 
+const accounts = require("../controllers/account.controller.js");
+const authorize = require("../middlewares/auth");
 
-module.exports = (app)=>{
-    //Create a new account
-    app.post('/accounts', authorize , accounts.create);
+module.exports = (app) => {
+  //Create a new account
+  // app.post('/accounts', authorize , accounts.create);
 
-    //Retrieve all accounts
-    app.get('/accounts',authorize, accounts.findAll);
+  //Create a new account
+  app.post("/accounts", accounts.create);
 
-    //Retrieve a single account with accountNumber
-    app.get('/accounts/:accountNumber', accounts.findOne);
+  //Retrieve all accounts
+  app.get("/accounts", authorize, accounts.findAll);
 
-    //Update a account with accountNumber
-    app.put('/accounts/:accountNumber', accounts.update);
+  //Retrieve a single account with accountNumber
+  app.get("/accounts/:accountNumber", accounts.findOne);
 
-    //Delete a account with accountNumber
+  //Update a account with accountNumber
+  app.put("/accounts/:accountNumber", accounts.update);
 
-    app.delete('accounts/accountNumber', accounts.delete)
-}
+  //Delete a account with accountNumber
+
+  app.delete("accounts/accountNumber", accounts.delete);
+};

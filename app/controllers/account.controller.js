@@ -1,67 +1,60 @@
 const Account = require("../models/account.model");
 const User = require("../models/user.model");
+
 // Create and Save a new Account
 exports.create = async (req, res) => {
-  if(!req.body.email){
-    return res.json({
-      message: "Please provide an email"
-    })
+  let errors = [];
+  if (!req.body.email) {
+    errors.push({ message: "Email is mandatory" });
   }
-  try {
-    // Create a Account
-    const account = new Account({
-      email:req.body.email,
-      accountNumber: Math.floor(
-        Math.random() * (9999999999 - 1111111111) + 1111111111
-      ),
-      type: req.body.type,
-      status: "active",
-      cashier: 123,
-      newBalance: Number(req.body.openingBalance),
-    });
-
-    // Save Account in the database
-    const savedAccount = await account.save();
-    // Adds account to User
-    // Then saves User to database
-    const user = await User.findOne({ email: req.body.email });
-    console.log(user)
-    user.accounts.push(savedAccount.id);
-    const savedUser = await user.save();
-
-    res.json({ message: "Bank account created", data: savedUser });
-  } catch (err) {
-    res.status(500).json({
-      message: err.message || "Some error occurred while creating the account.",
-    });
+  if (!req.body.type) {
+    errors.push({ message: "type is mandatory" });
   }
 
-  // // Save Account in the database
-  // account
-  //   .save()
-  //   .then((data) => {
-  //     res.json({
-  //       message: "Bank account created",
-  //       data: data,
-  //     });
-  //   })
-  //   .catch((err) => {
-  //     res.status(500).json({
-  //       message:
-  //         err.message || "Some error occurred while creating the account.",
-  //     });
-  //   });
+  if (errors.length > 0) {
+    res.json({
+      errors,
+    });
+  } else {
+    try {
+//Find a user
+      const user = await User.findOne({ email: req.body.email });
+
+      // Create a Account
+      const account = new Account({
+        email: req.body.email,
+        accountNumber: Math.floor(
+          Math.random() * (9999999999 - 1111111111) + 1111111111
+        ),
+        type: req.body.type,
+        status: "active",
+        openingBalance: Number(req.body.openingBalance) || 0,
+        owner: user.id
+      });
+
+      // Save Account in the database
+      const savedAccount = await account.save();
+      // Adds account to User
+      // Then saves User to database
+      user.accounts.push(savedAccount.id);
+
+      res.json({ message: "Bank account created", data: savedAccount, user: user });
+    } catch (err) {
+      res.status(500).json({
+        message:
+          err.message || "Some error occurred while creating the account.",
+      });
+    }
+  }
 };
 
 // Retrieve and return all accounts from the database.
 exports.findAll = async (req, res) => {
   try {
-
- 
     const user = await User.findOne({ email: req.body.email });
     const accounts = await Account.find();
     const accounts2 = await accounts.populate("accounts").exec();
-   console.log(accounts2)
+    console.log(accounts2);
     return res.json({
       data: accounts,
     });
@@ -71,8 +64,6 @@ exports.findAll = async (req, res) => {
         error.message || "Some error occurred while retrieving accounts.",
     });
   }
-
- 
 
   // Account.find()
   //   .then((accounts) => {
@@ -91,12 +82,7 @@ exports.findAll = async (req, res) => {
 
 // Find a single account with a accountNumber
 exports.findOne = async (req, res) => {
-  
-  
-
-
   try {
-
     Account.findOne({ email: req.body.email })
       .populate("user")
       .exec((err, user) => {
@@ -106,7 +92,7 @@ exports.findOne = async (req, res) => {
           data: user,
         });
       });
-  
+
     // const user = await User.findOne({ email: req.body.email });
     // console.log("user", user.email)
     // const account = await Account.find({ email: user.email });
@@ -152,7 +138,7 @@ exports.update = (req, res) => {
     {
       status: req.body.accountStatus || "active",
     },
-    
+
     { new: true }
   )
     .then((account) => {

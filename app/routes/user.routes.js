@@ -11,6 +11,9 @@ module.exports = (app) => {
   //Get all users
   app.get("/auth/users", user.findAllUsers);
 
+  //Get one User
+  app.get("/auth/user", user.getOneUser);
+  
   // Create a new Tutorial
   app.delete("/auth/deleteAll", user.deleteAll);
 
