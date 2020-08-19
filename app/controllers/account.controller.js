@@ -61,42 +61,19 @@ exports.findAll = async (req, res) => {
         message: "User Not Found",
       });
     }
-    
-      const accounts = await Account.find({ owner: user.id });
-      // console.log("account", account);
-      return res.json({
-        message: "Account Found",
-        data: accounts,
-      });
-  
 
-    // const user = await User.findOne({ email: req.body.email });
-    // const accounts = await Account.find();
-    // const accounts2 = await accounts.populate("accounts").exec();
-    // console.log(accounts2);
-    // return res.json({
-    //   data: accounts,
-    // });
+    const accounts = await Account.find({ owner: user.id });
+    // console.log("account", account);
+    return res.json({
+      message: "Accounts Found",
+      data: accounts,
+    });
   } catch (error) {
     return res.status(500).json({
       message:
         error.message || "Some error occurred while retrieving accounts.",
     });
   }
-
-  // Account.find()
-  //   .then((accounts) => {
-  //     res.json({
-  //       message: "All accounts retrieved",
-  //       data: accounts,
-  //     });
-  //   })
-  //   .catch((err) => {
-  //     res.status(500).json({
-  //       message:
-  //         err.message || "Some error occurred while retrieving accounts.",
-  //     });
-  //   });
 };
 
 // Find a single account with a accountNumber
