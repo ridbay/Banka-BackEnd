@@ -99,13 +99,13 @@ exports.findOne = async (req, res) => {
 };
 
 // Activate or Deactivate an account identified by the accountNumber in the request
-exports.update = (req, res) => {
+exports.update = async (req, res) => {
   let errors = [];
   if (!req.body.email) {
     errors.push({ message: "Email is mandatory" });
   }
-  if (!req.body.type) {
-    errors.push({ message: "type is mandatory" });
+  if (!req.body.status) {
+    errors.push({ message: "Account status is mandatory" });
   }
 
   if (errors.length > 0) {
@@ -113,37 +113,38 @@ exports.update = (req, res) => {
       errors,
     });
   } else {
-  }
-  // Find account and update it with the request body
-  Account.findByIdAndUpdate(
-    req.params.id,
-    {
-      status: req.body.accountStatus || "active",
-    },
-
-    { new: true }
-  )
-    .then((account) => {
-      if (!account) {
+    try {
+      const user = await User.findOne({ email: req.body.email });
+      if (!user) {
         return res.status(404).json({
-          message: "account not found with id " + req.params.accountNumber,
+          message: "User Not Found",
         });
       }
+      let account = await Account.findOneAndUpdate(
+        { accountNumber: req.params.accountNumber },
+        {
+          status: req.body.status,
+        },
+        { new: true }
+      );
       res.json({
         message: "Account updated",
         data: account,
       });
-    })
-    .catch((err) => {
-      if (err.kind === "ObjectId") {
+    } catch (error) {
+      if (error.kind === "ObjectId") {
         return res.status(404).json({
           message: "Account not found with id " + req.params.accountNumber,
+          data: error,
         });
       }
       return res.status(500).json({
         message: "Error updating account with id " + req.params.accountNumber,
+        data: error,
       });
-    });
+    }
+  }
+  // Find account and update it with the request body
 };
 
 // Delete an account with the specified accountNumber in the request

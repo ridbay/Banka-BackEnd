@@ -15,7 +15,7 @@ module.exports = (app) => {
   app.get("/accounts/:accountNumber", accounts.findOne);
 
   //Update a account with accountNumber
-  app.put("/accounts/:id", accounts.update);
+  app.put("/accounts/:accountNumber", accounts.update);
 
   //Delete a account with accountNumber
 
