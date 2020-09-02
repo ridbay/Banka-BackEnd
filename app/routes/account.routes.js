@@ -17,7 +17,7 @@ module.exports = (app) => {
   //Update a account with accountNumber
   app.put("/accounts/:accountNumber", accounts.update);
 
-  //Delete a account with accountNumber
+  //Delete an account with accountNumber
 
-  app.delete("accounts/accountNumber", accounts.delete);
+  app.delete("/accounts/:id", accounts.delete);
 };

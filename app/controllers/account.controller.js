@@ -148,24 +148,99 @@ exports.update = async (req, res) => {
 };
 
 // Delete an account with the specified accountNumber in the request
-exports.delete = (req, res) => {
-  Account.findByIdAndRemove(req.params.accountNumber)
-    .then((account) => {
-      if (!account) {
-        return res.status(404).json({
-          message: "account not found with id " + req.params.accountNumber,
-        });
-      }
-      res.json({ message: "Account successfully deleted" });
-    })
-    .catch((err) => {
-      if (err.kind === "ObjectId" || err.name === "NotFound") {
-        return res.status(404).send({
-          message: "account not found with id " + req.params.accountNumber,
-        });
-      }
-      return res.status(500).send({
-        message: "Could not delete account with id " + req.params.accountNumber,
+// exports.delete = async (req, res) => {
+//   let errors = [];
+//   if (!req.body.email) {
+//     errors.push({ message: "Email is mandatory" });
+//   }
+//   if (errors.length > 0) {
+//     res.json({
+//       errors,
+//     });
+//   } else {
+//     try {
+//       Account.findOneAndDelete(
+//         { accountNumber: req.params.accountNumber },
+//         function (err) {
+//           if (err) console.log(err);
+//           console.log("Successful deletion");
+//           res.json({
+//             message: "Account Deleted",
+//             // data: account,
+//           });
+//         }
+//       );
+//       // let account = await Account.findOneAndDelete({
+//       //   accountNumber: req.params.accountNumber,
+//       // });
+//       // console.log(account);
+//       // res.json({
+//       //   message: "Account updated",
+//       //   data: account,
+//       // });
+//     } catch (error) {
+//       return res.json({ data: error });
+//     }
+//   }
+
+//   // Account.findOneAndDelete({ accountNumber: req.params.accountNumber })
+//   //   .then((account) => {
+//   //     if (!account) {
+//   //       return res.status(404).json({
+//   //         message: "account not found with id " + req.params.accountNumber,
+//   //       });
+//   //     }
+//   //     res.json({ message: "Account successfully deleted" });
+//   //   })
+//   //   .catch((err) => {
+//   //     if (err.kind === "ObjectId" || err.name === "NotFound") {
+//   //       return res.status(404).send({
+//   //         message: "account not found with id " + req.params.accountNumber,
+//   //       });
+//   //     }
+//   //     return res.status(500).send({
+//   //       message: "Could not delete account with id " + req.params.accountNumber,
+//   //     });
+//   //   });
+// };
+
+// exports.delete = (req, res) => {
+//   const id = req.params.id;
+
+//   Account.findByIdAndRemove(id)
+//     .then(data => {
+//       if (!data) {
+//         res.status(404).send({
+//           message: `Cannot delete Tutorial with id=${id}. Maybe Tutorial was not found!`
+//         });
+//       } else {
+//         res.send({
+//           message: "Tutorial was deleted successfully!"
+//         });
+//       }
+//     })
+//     .catch(err => {
+//       res.status(500).send({
+//         message: "Could not delete Tutorial with id=" + id
+//       });
+//     });
+// };
+
+exports.delete = async (req, res) => {
+  try {
+    const findAccount = await Account.findOne({ accountNumber: req.params.accountNumber});
+    if (!findAccount) {
+      return res.status(400).json({
+        message: `Account Number Not Found`,
       });
-    });
-};
+    }
+    const account = await Account.deleteOne({accountNumber: req.params.accountNumber})
+
+    if (!account) res.status(404).send("No item found")
+    res.status(200).json({
+      data:`Account with account number ${req.params.accountNumber} successfully deleted`
+    })
+  } catch (err) {
+    res.status(500).send(err)
+  }
+}
