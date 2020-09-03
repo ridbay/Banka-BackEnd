@@ -1,18 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-// {
-//     “id” : Integer,
-//     “createdOn” : DateTime,
-//     “type” : String,
-//     “accountNumber” : Integer,
-//     “cashier” : Integer,
-//     “amount” : Float,
-//     “oldBalance” : Float,
-//     “newBalance” : Float,
-//     ...
-//     }
-
 const transactionSchema = new Schema(
   {
     type: String, // credit or debit

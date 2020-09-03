@@ -18,5 +18,4 @@ module.exports = (app) => {
 //   app.delete("/images/:id", images.delete);
 };
 
-
 // https://medium.com/@towfiqu/react-image-upload-with-cloudinary-nodejs-and-mongodb-baf23e92ba13
