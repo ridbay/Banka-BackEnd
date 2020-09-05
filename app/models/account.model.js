@@ -9,8 +9,8 @@ const accountSchema = new Schema(
     status: String, // draft, active, or dormant
     // cashier: Number,
     // amount: Number,
-    // oldBalance: { type: Number, default: 0 },
-    openingBalance: { type: Number, default: 0 },
+    accountBalance: { type: Number, default: 0 },
+    // openingBalance: { type: Number, default: 0 },
     transactions: [
       {
         type: mongoose.Schema.Types.ObjectId,

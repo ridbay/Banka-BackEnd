@@ -54,6 +54,10 @@ accountRoutes(app);
 let userRoutes = require("./app/routes/user.routes");
 userRoutes(app);
 
+//Require Transactions routes
+let transactionRoutes = require("./app/routes/transaction.routes");
+transactionRoutes(app);
+
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8000;

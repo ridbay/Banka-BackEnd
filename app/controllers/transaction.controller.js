@@ -1,11 +1,64 @@
 const Transaction = require("../models/transaction.model");
+const Account = require("../models/account.model");
 
 // Create Credit and Save a new Transaction
-exports.createCredit = (req, res) => {
-//   Validate request
+exports.createCredit = async (req, res) => {
+  //   Validate request
   if (!req.body.type) {
     return res.status(400).json({
       message: "Select the type of transaction; Credit",
+    });
+  }
+  try {
+    const account = await Account.findOne({
+      accountNumber: req.params.accountNumber,
+    });
+    console.log("Account found", account);
+    // Create a Transaction
+    const transaction = new Transaction({
+      type: req.body.type,
+      // accountNumber: Number(req.body.accountNumber),
+      amount: Number(req.body.amount),
+      // cashier: Number(req.body.cashier),
+      transactionType: req.body.transactionType,
+      accountBalance: req.body.accountBalance,
+    });
+
+    // Save Transaction in the database
+    const savedTransaction = await transaction.save();
+    console.log("Saved transaction", savedTransaction);
+
+    account.transactions.push(savedTransaction.id);
+    let newBalance = account.accountBalance + req.body.amount;
+
+    let updateAccount = await Account.findOneAndUpdate(
+      { accountNumber: req.params.accountNumber },
+      {
+        accountBalance: newBalance,
+      },
+      { new: true }
+    );
+
+    console.log("Account balance", account.accountBalance);
+    res.json({
+      message: "Transaction created",
+      data: updateAccount,
+    });
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      message:
+        error.message || "Some error occurred while creating the transaction.",
+    });
+  }
+};
+
+// Create Debit and Save a new Transaction
+exports.createDebit = (req, res) => {
+  //   Validate request
+  if (!req.body.type) {
+    return res.status(400).json({
+      message: "Select the type of transaction; Debit",
     });
   }
 
@@ -35,42 +88,6 @@ exports.createCredit = (req, res) => {
       });
     });
 };
-
-// Create Debit and Save a new Transaction
-exports.createDebit = (req, res) => {
-    //   Validate request
-      if (!req.body.type) {
-        return res.status(400).json({
-          message: "Select the type of transaction; Debit",
-        });
-      }
-    
-      // Create a Transaction
-      const transaction = new Transaction({
-        type: req.body.type,
-        accountNumber: Number(req.body.accountNumber),
-        amount: Number(req.body.amount),
-        cashier: Number(req.body.cahier),
-        transactionType: req.body.transactionType,
-        accountBalance: req.body.accountBalance,
-      });
-    
-      // Save Transaction in the database
-      account
-        .save()
-        .then((data) => {
-          res.json({
-            message: "Transaction created",
-            data: data,
-          });
-        })
-        .catch((err) => {
-          res.status(500).json({
-            message:
-              err.message || "Some error occurred while creating the transaction.",
-          });
-        });
-    };
 
 // Retrieve and return all transactions from the database.
 exports.findAll = (req, res) => {
