@@ -1,6 +1,8 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+require("dotenv").config();
+
 
 // Configuring the database
 const dbConfig = require("./config/database.config.js");
@@ -20,7 +22,7 @@ mongoose.Promise = global.Promise;
 
 // Connecting to the database
 mongoose
-  .connect(dbConfig.local, {
+  .connect(dbConfig.live, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useFindAndModify: false,
