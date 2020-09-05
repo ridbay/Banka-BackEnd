@@ -6,14 +6,14 @@ module.exports = (app) => {
   // app.post('/transaction', authorize , transaction.create);
 
   //Credit Account
-  app.post("/transactions/:accountNumber/credit", transaction.createCredit);
+  app.post("api/v1/transactions/:accountNumber/credit", transaction.createCredit);
   //Debit Account
-  app.post("/transactions/:accountNumber/debit", transaction.createDebit);
+  app.post("api/v1/transactions/:accountNumber/debit", transaction.createDebit);
   //Get all transactions
-  app.get("/transactions", transaction.findAll);
+  app.get("api/v1/transactions", transaction.findAll);
   //Get One transactions
-  app.get("/transactions/:id", transaction.findOne);
+  app.get("api/v1/transactions/:id", transaction.findOne);
 
   //Delete an transaction with an ID
-  app.delete("/transactions/:id", transaction.delete);
+  app.delete("api/v1/transactions/:id", transaction.delete);
 };

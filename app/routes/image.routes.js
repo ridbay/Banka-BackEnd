@@ -2,13 +2,13 @@ const images = require("../controllers/image.controller.js");
 
 module.exports = (app) => {
   //Create a new image
-  app.post("/upload", images.create);
+  app.post("api/v1/upload", images.create);
 
 //   //Retrieve all images
 //   app.get("/images", images.findAll);
 
   //Retrieve a single image with imageNumber
-  app.get("/images/", images.findOne);
+  app.get("api/v1/images/", images.findOne);
 
 //   //Update a image with imageNumber
 //   app.put("/images/:imageNumber", images.update);

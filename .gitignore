@@ -6,9 +6,9 @@
 .pnp.js
 
 
-# dependencies
+# Private
 /config
-
+.env
 
 
 # testing

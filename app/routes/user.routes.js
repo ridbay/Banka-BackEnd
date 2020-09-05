@@ -3,19 +3,19 @@ const user = require("../controllers/user.controller");
 
 module.exports = (app) => {
   //Create a new user
-  app.post("/auth/signup", user.signup);
+  app.post("api/v1/auth/signup", user.signup);
 
   //Signin an existing user
-  app.post("/auth/signin", user.signin);
+  app.post("api/v1/auth/signin", user.signin);
 
   //Get all users
-  app.get("/auth/users", user.findAllUsers);
+  app.get("api/v1/auth/users", user.findAllUsers);
 
   //Get one User
-  app.get("/auth/user", user.getOneUser);
+  app.get("api/v1/auth/user", user.getOneUser);
   
-  // Create a new Tutorial
-  app.delete("/auth/deleteAll", user.deleteAll);
+  // Delete a User
+  app.delete("api/v1/auth/deleteAll", user.deleteAll);
 
   //   //Create a bank account
   //   app.post("/accounts", authorize, user.accounts);
