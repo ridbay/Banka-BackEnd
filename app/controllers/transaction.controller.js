@@ -13,22 +13,7 @@ exports.createCredit = async (req, res) => {
     const account = await Account.findOne({
       accountNumber: req.params.accountNumber,
     });
-    console.log("Account found", account);
-    // Create a Transaction
-    const transaction = new Transaction({
-      type: req.body.type,
-      // accountNumber: Number(req.body.accountNumber),
-      amount: Number(req.body.amount),
-      // cashier: Number(req.body.cashier),
-      transactionType: req.body.transactionType,
-      accountBalance: req.body.accountBalance,
-    });
 
-    // Save Transaction in the database
-    const savedTransaction = await transaction.save();
-    console.log("Saved transaction", savedTransaction);
-
-    account.transactions.push(savedTransaction.id);
     let newBalance = account.accountBalance + req.body.amount;
 
     let updateAccount = await Account.findOneAndUpdate(
@@ -39,13 +24,25 @@ exports.createCredit = async (req, res) => {
       { new: true }
     );
 
-    console.log("Account balance", account.accountBalance);
-    res.json({
-      message: "Transaction created",
-      data: updateAccount,
+    // Create a Transaction
+    const transaction = new Transaction({
+      type: req.body.type,
+      accountNumber: Number(req.params.accountNumber),
+      amount: Number(req.body.amount),
+      cashier: Number(req.body.cashier),
+      oldBalance: account.accountBalance,
+      newBalance,
+    });
+
+    // Save Transaction in the database
+    const savedTransaction = await transaction.save();
+
+    account.transactions.push(savedTransaction.id);
+    res.status(200).json({
+      message: "Credit Transaction created",
+      data: savedTransaction,
     });
   } catch (error) {
-    console.log(error)
     res.status(500).json({
       message:
         error.message || "Some error occurred while creating the transaction.",
@@ -54,143 +51,116 @@ exports.createCredit = async (req, res) => {
 };
 
 // Create Debit and Save a new Transaction
-exports.createDebit = (req, res) => {
+exports.createDebit = async (req, res) => {
   //   Validate request
   if (!req.body.type) {
     return res.status(400).json({
       message: "Select the type of transaction; Debit",
     });
   }
-
-  // Create a Transaction
-  const transaction = new Transaction({
-    type: req.body.type,
-    accountNumber: Number(req.body.accountNumber),
-    amount: Number(req.body.amount),
-    cashier: Number(req.body.cahier),
-    transactionType: req.body.transactionType,
-    accountBalance: req.body.accountBalance,
-  });
-
-  // Save Transaction in the database
-  account
-    .save()
-    .then((data) => {
-      res.json({
-        message: "Transaction created",
-        data: data,
-      });
-    })
-    .catch((err) => {
-      res.status(500).json({
-        message:
-          err.message || "Some error occurred while creating the transaction.",
-      });
+  try {
+    const account = await Account.findOne({
+      accountNumber: req.params.accountNumber,
     });
+
+    let newBalance = account.accountBalance - req.body.amount;
+
+    let updateAccount = await Account.findOneAndUpdate(
+      { accountNumber: req.params.accountNumber },
+      {
+        accountBalance: newBalance,
+      },
+      { new: true }
+    );
+
+    // Create a Transaction
+    const transaction = new Transaction({
+      type: req.body.type,
+      accountNumber: Number(req.params.accountNumber),
+      amount: Number(req.body.amount),
+      cashier: Number(req.body.cashier),
+      transactionType: req.body.transactionType,
+      oldBalance: account.accountBalance,
+      newBalance,
+    });
+
+    // Save Transaction in the database
+    const savedTransaction = await transaction.save();
+
+    account.transactions.push(savedTransaction.id);
+    res.json({
+      message: " Debit Transaction created",
+      data: savedTransaction,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Some error occurred while creating the transaction.",
+      data: error.message,
+    });
+  }
 };
 
 // Retrieve and return all transactions from the database.
-exports.findAll = (req, res) => {
-  Transaction.find()
-    .then((transactions) => {
-      res.json({
-        message: "All transactions retrieved",
-        data: transactions,
-      });
-    })
-    .catch((err) => {
-      res.status(500).json({
-        message:
-          err.message || "Some error occurred while retrieving transactions.",
-      });
+exports.findAll = async (req, res) => {
+  try {
+    const transactions = await Transaction.find();
+    res.json({
+      message: "All transactions retrieved",
+      data: transactions,
     });
-};
-
-// Find a single Transaction with a accountNumber
-exports.findOne = (req, res) => {
-  Account.findById(req.params.accountNumber)
-    .then((account) => {
-      if (!account) {
-        return res.status(404).json({
-          message: "Account not found with id " + req.params.accountNumber,
-        });
-      }
-      res.json({
-        message: "Account Found",
-        data: account,
-      });
-    })
-    .catch((err) => {
-      if (err.kind === "ObjectId") {
-        return res.status(404).json({
-          message: "Account not found with id " + req.params.accountNumber,
-        });
-      }
-      return res.status(500).json({
-        message: "Error retrieving account with id " + req.params.accountNumber,
-      });
-    });
-};
-
-// Activate or Deactivate an account identified by the accountNumber in the request
-exports.update = (req, res) => {
-  // Validate Request
-  if (!req.body.accountNumber) {
-    return res.status(400).json({
-      message: "account Number can not be empty",
+  } catch (error) {
+    res.status(500).json({
+      message: "Some error occurred while retrieving transactions.",
+      data: error.message,
     });
   }
+};
 
-  // Find account and update it with the request body
-  Account.findByIdAndUpdate(
-    req.params.accountNumber,
-    {
-      status: req.body.accountStatus || "active",
-    },
-    { new: true }
-  )
-    .then((account) => {
-      if (!account) {
+// Find a single Transaction with an ID
+exports.findOne = (req, res) => {
+  Transaction.findById(req.params.id)
+    .then((transaction) => {
+      if (!transaction) {
         return res.status(404).json({
-          message: "account not found with id " + req.params.accountNumber,
+          message: "Transaction not found with id: " + req.params.id,
         });
       }
       res.json({
-        message: "Account updated",
-        data: account,
+        message: "Transaction Found",
+        data: transaction,
       });
     })
     .catch((err) => {
       if (err.kind === "ObjectId") {
         return res.status(404).json({
-          message: "Account not found with id " + req.params.accountNumber,
+          message: "Transaction not found with id " + req.params.id,
         });
       }
       return res.status(500).json({
-        message: "Error updating account with id " + req.params.accountNumber,
+        message: "Error retrieving transaction with id " + req.params.id,
       });
     });
 };
 
-// Delete an account with the specified accountNumber in the request
+// Delete a transaction with the specified id in the request
 exports.delete = (req, res) => {
-  Account.findByIdAndRemove(req.params.accountNumber)
-    .then((account) => {
-      if (!account) {
+  Transaction.findByIdAndRemove(req.params.id)
+    .then((transaction) => {
+      if (!transaction) {
         return res.status(404).json({
-          message: "account not found with id " + req.params.accountNumber,
+          message: "transaction not found with id " + req.params.id,
         });
       }
-      res.json({ message: "Account successfully deleted" });
+      res.status(200).json({ message: "Transaction successfully deleted" });
     })
     .catch((err) => {
       if (err.kind === "ObjectId" || err.name === "NotFound") {
         return res.status(404).send({
-          message: "account not found with id " + req.params.accountNumber,
+          message: "transaction not found with id " + req.params.id,
         });
       }
       return res.status(500).send({
-        message: "Could not delete account with id " + req.params.accountNumber,
+        message: "Could not delete transaction with id " + req.params.id,
       });
     });
 };

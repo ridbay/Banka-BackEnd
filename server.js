@@ -2,8 +2,6 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 
-
-
 // Configuring the database
 const dbConfig = require("./config/database.config.js");
 const mongoose = require("mongoose");
@@ -11,7 +9,7 @@ const mongoose = require("mongoose");
 // create express app
 const app = express();
 
-app.use(cors())
+app.use(cors());
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -25,7 +23,7 @@ mongoose
   .connect(dbConfig.url, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useFindAndModify: false
+    useFindAndModify: false,
   })
   .then(() => {
     console.log("Successfully connected to the database");
@@ -57,7 +55,6 @@ userRoutes(app);
 //Require Transactions routes
 let transactionRoutes = require("./app/routes/transaction.routes");
 transactionRoutes(app);
-
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8000;
