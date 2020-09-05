@@ -20,7 +20,7 @@ mongoose.Promise = global.Promise;
 
 // Connecting to the database
 mongoose
-  .connect(dbConfig.local, {
+  .connect(dbConfig.connection, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useFindAndModify: false,

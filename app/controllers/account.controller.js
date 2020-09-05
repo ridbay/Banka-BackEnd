@@ -228,19 +228,23 @@ exports.update = async (req, res) => {
 
 exports.delete = async (req, res) => {
   try {
-    const findAccount = await Account.findOne({ accountNumber: req.params.accountNumber});
+    const findAccount = await Account.findOne({
+      accountNumber: req.params.accountNumber,
+    });
     if (!findAccount) {
       return res.status(400).json({
         message: `Account Number Not Found`,
       });
     }
-    const account = await Account.deleteOne({accountNumber: req.params.accountNumber})
+    const account = await Account.deleteOne({
+      accountNumber: req.params.accountNumber,
+    });
 
-    if (!account) res.status(404).send("No item found")
+    if (!account) res.status(404).send("No item found");
     res.status(200).json({
-      data:`Account with account number ${req.params.accountNumber} successfully deleted`
-    })
+      data: `Account with account number ${req.params.accountNumber} successfully deleted`,
+    });
   } catch (err) {
-    res.status(500).send(err)
+    res.status(500).send(err);
   }
-}
+};
