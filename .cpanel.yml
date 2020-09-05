@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/transitit/public_html/banka-api/
+    - /bin/cp -R * $DEPLOYPATH
