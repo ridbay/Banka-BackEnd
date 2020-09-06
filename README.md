@@ -1,7 +1,9 @@
 # Banking App with Express Server and MongoDB
 Banka is a light-weight core banking application that powers banking operations like account creation, customer deposit and withdrawals. This app is meant to support a single bank, where users can signup and create bank accounts online, but must visit the branch to withdraw or deposit money.
 
-https://banka-server-api.herokuapp.com/
+
+## Live Server
+https://factual-ruby-board.glitch.me/
 
 ## Features
 
@@ -25,7 +27,7 @@ https://banka-server-api.herokuapp.com/
 
 ### GET Routes
 
-- visit http://localhost:8000
+- visit https://factual-ruby-board.glitch.me/
   - USERS
   - /api/v1/auth/users (All users)
   - /api/v1/auth/user (one user)
@@ -37,7 +39,7 @@ https://banka-server-api.herokuapp.com/
   - /api/v1/transactions/:id (Get One transactions)
 
 ### POST Routes
-- visit http://localhost:8000
+- visit https://factual-ruby-board.glitch.me/
   - USERS
   - /api/v1/auth/signup (Create a new user)
   - /api/v1/auth/signin (Signin an existing user)
@@ -50,7 +52,7 @@ https://banka-server-api.herokuapp.com/
 
 
 ### PUT Routes
-- visit http://localhost:8000
+- visit https://factual-ruby-board.glitch.me/
 
   - ACCOUNTS
   - /api/v1/accounts/:accountNumber (Update a account with accountNumber)
@@ -58,7 +60,7 @@ https://banka-server-api.herokuapp.com/
 
 
 ### DELETE Routes
-- visit http://localhost:8000
+- visit https://factual-ruby-board.glitch.me/
   - USERS
   - /api/v1/auth/deleteAll (Delete all Users)
 
@@ -74,7 +76,7 @@ https://banka-server-api.herokuapp.com/
 
 - Install [Postman](https://www.getpostman.com/apps) to interact with REST API
 - Create a User with:
-  - URL: http://localhost:3000/api/v1/auth/signup
+  - URL: https://factual-ruby-board.glitch.me/api/v1/auth/signup
   - Method: POST
   - Body: raw + JSON (application/json)
   - Body Content: `{ "firstName": "Ridwan", "lastName":"Balogun", "email":"ridwan@gmail.com", "password":"secret",}`
